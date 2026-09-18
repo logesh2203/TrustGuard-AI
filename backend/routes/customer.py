@@ -25,10 +25,17 @@ def login_required(f):
 
 @customer_bp.route('/')
 def index():
-    """Root route redirecting to dashboard or login."""
-    if 'user_id' in session:
-        return redirect(url_for('customer.dashboard_page'))
-    return redirect(url_for('customer.login_page'))
+    """Root route rendering the public landing page."""
+    try:
+        stats = DatasetService.get_dataset_summary_stats()
+    except Exception:
+        stats = {
+            'total_transactions': 284807,
+            'normal_transactions': 284315,
+            'fraud_transactions': 492,
+            'fraud_percentage': 0.173
+        }
+    return render_template('index.html', stats=stats)
 
 
 @customer_bp.route('/customer/register', methods=['GET'])

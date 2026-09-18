@@ -61,7 +61,7 @@ app = create_app()
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"==================================================")
-    print(f" TrustGuard AI - Module 1: Basic Customer Portal  ")
+    print(f" TrustGuard AI - Intelligent Financial Platform   ")
     print(f" Server running at: http://127.0.0.1:{port}      ")
     print(f" Database: {Config.DATABASE_DIR}/trustguard.db   ")
     print(f" Dataset:  {Config.DATASET_PATH}                ")

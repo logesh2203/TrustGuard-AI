@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block title %}TrustGuard AI — Intelligent Financial Security & Fraud Anomaly Detection{% endblock %}
+
+{% block main_class %}p-0{% endblock %}
+
+{% block full_width_content %}
+<!-- Hero Section -->
+<section class="hero-section" id="top">
+    <div class="hero-glow"></div>
+    <div class="container hero-content text-center">
+        <div class="hero-badge mb-3">
+            <span class="glow-dot"></span>
+            <span>Enterprise Financial Security & Anomaly Detection</span>
+        </div>
+        
+        <h1 class="hero-title">
+            Intelligent Financial Security &<br>
+            <span class="text-gradient-red">Fraud Anomaly Detection</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+            Real-time transaction anomaly detection, PCA vector inspection, and end-to-end incident remediation built on anonymized high-frequency transaction data.
+        </p>
+        
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 mb-4">
+            <a href="{{ url_for('customer.register_page') }}" class="btn btn-primary btn-lg px-4 py-2 d-flex align-items-center gap-2">
+                <i class="bi bi-shield-check"></i>
+                <span>Get Started Free</span>
+            </a>
+            <a href="{{ url_for('bank.login_page') }}" class="btn btn-outline-warning btn-lg px-4 py-2 d-flex align-items-center gap-2">
+                <i class="bi bi-bank"></i>
+                <span>Bank Operations Portal</span>
+            </a>
+        </div>
+        
+        <div class="small text-muted mb-5">
+            Already have an account? <a href="{{ url_for('customer.login_page') }}" class="text-red text-decoration-none fw-semibold">Sign in to Customer Portal &rarr;</a>
+        </div>
+
+        <!-- Metric Ribbon (Real Platform Dataset Metrics) -->
+        <div class="metric-ribbon">
+            <div class="row gy-3">
+                <div class="col-6 col-md-3 metric-ribbon-item border-end-subtle">
+                    <div class="metric-ribbon-val text-white">{{ "{:,}".format(stats.total_transactions) }}</div>
+                    <div class="metric-ribbon-label">Total Transactions</div>
+                </div>
+                <div class="col-6 col-md-3 metric-ribbon-item border-end-subtle">
+                    <div class="metric-ribbon-val text-red">{{ "{:,}".format(stats.fraud_transactions) }}</div>
+                    <div class="metric-ribbon-label">Fraud Incidents ({{ stats.fraud_percentage }}%)</div>
+                </div>
+                <div class="col-6 col-md-3 metric-ribbon-item border-end-subtle">
+                    <div class="metric-ribbon-val text-white">28 Vectors</div>
+                    <div class="metric-ribbon-label">PCA Dimensions (V1-V28)</div>
+                </div>
+                <div class="col-6 col-md-3 metric-ribbon-item">
+                    <div class="metric-ribbon-val text-emerald" style="color: #10b981;">100%</div>
+                    <div class="metric-ribbon-label">Ground Truth Verified</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Product Preview Mockup -->
+        <div class="mockup-window text-start">
+            <div class="mockup-header">
+                <div class="mockup-dot red"></div>
+                <div class="mockup-dot yellow"></div>
+                <div class="mockup-dot green"></div>
+                <div class="mockup-address">
+                    <i class="bi bi-lock-fill me-1 text-red"></i> trustguard.network/security/realtime-monitor
+                </div>
+            </div>
+            <div class="mockup-body">
+                <div class="d-flex flex-wrap align-items-center justify-content-between pb-3 mb-3 border-bottom border-secondary border-opacity-10 gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="d-inline-block rounded-circle bg-danger" style="width:8px; height:8px; box-shadow:0 0 8px #ef233c;"></span>
+                        <span class="small fw-bold text-white tracking-wider text-uppercase">Live Detection Feed</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-dark border border-secondary border-opacity-25 text-muted px-2 py-1 small">Stream: Active</span>
+                        <span class="badge bg-danger-subtle text-red border border-danger border-opacity-25 px-2 py-1 small">Anomaly Triage</span>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table align-middle text-nowrap mb-0" style="font-size:0.85rem;">
+                        <thead>
+                            <tr>
+                                <th>Transaction Ref</th>
+                                <th>Timestamp</th>
+                                <th>Amount</th>
+                                <th>PCA Anomaly Vector</th>
+                                <th>Ground Truth</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold text-white">
+                                    <i class="bi bi-hash text-muted"></i>TXN-000492
+                                </td>
+                                <td class="text-secondary">0.00s (Delta +0.02)</td>
+                                <td class="fw-bold text-red">$149.62</td>
+                                <td>
+                                    <span class="badge bg-danger-subtle text-red border border-danger border-opacity-25 font-monospace">V1=-1.359 &bull; V2=-0.072</span>
+                                </td>
+                                <td>
+                                    <span class="badge-status-fraud">
+                                        <i class="bi bi-shield-x"></i> High-Risk Fraud
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-case-open">
+                                        <i class="bi bi-exclamation-circle"></i> Case Active
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold text-white">
+                                    <i class="bi bi-hash text-muted"></i>TXN-000493
+                                </td>
+                                <td class="text-secondary">1.00s (Delta +0.15)</td>
+                                <td class="fw-bold text-white">$2.69</td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 font-monospace">V1=1.191 &bull; V2=0.266</span>
+                                </td>
+                                <td>
+                                    <span class="badge-status-normal">
+                                        <i class="bi bi-shield-check"></i> Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small"><i class="bi bi-check2-all text-success me-1"></i>Cleared</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold text-white">
+                                    <i class="bi bi-hash text-muted"></i>TXN-000494
+                                </td>
+                                <td class="text-secondary">2.00s (Delta +0.40)</td>
+                                <td class="fw-bold text-white">$378.66</td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 font-monospace">V1=-1.358 &bull; V2=-1.340</span>
+                                </td>
+                                <td>
+                                    <span class="badge-status-normal">
+                                        <i class="bi bi-shield-check"></i> Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small"><i class="bi bi-check2-all text-success me-1"></i>Cleared</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5" id="features" style="position: relative; border-top: 1px solid var(--tg-border);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-danger-subtle text-red border border-danger border-opacity-25 px-3 py-1 mb-2 text-uppercase fw-semibold" style="font-size:0.75rem; letter-spacing:0.06em;">Platform Capabilities</span>
+            <h2 class="display-6 fw-bold text-white mb-2">Architected for Financial Integrity</h2>
+            <p class="text-secondary mx-auto" style="max-width: 620px;">
+                Comprehensive transaction auditing and anomaly defense combining statistical PCA analysis with dual-portal risk operations.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">PCA Feature Inspection</h5>
+                    <p class="text-secondary small mb-0">
+                        Inspect all 28 anonymized PCA latent vectors (V1-V28). Analyze sensitive transaction geometry while preserving strict customer PII privacy.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-layout-split"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Dual-Portal Separation</h5>
+                    <p class="text-secondary small mb-0">
+                        Isolated workspaces for customers and risk analysts. Customers track balances and safety, while bank analysts investigate fraud dossiers.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-folder-check"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">End-to-End Case Triage</h5>
+                    <p class="text-secondary small mb-0">
+                        Convert flagged transactions into actionable investigation cases. Track priority, update analyst statuses, and maintain timestamped case notes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Ground Truth Classification</h5>
+                    <p class="text-secondary small mb-0">
+                        Direct benchmarking against verified credit card datasets containing 284,807 transactions with 492 confirmed fraudulent anomalies.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Role-Based Cryptography</h5>
+                    <p class="text-secondary small mb-0">
+                        Bcrypt salted password encryption with strict session RBAC. Enforces clean demarcation between customer self-service and risk desk administration.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Operational Telemetry</h5>
+                    <p class="text-secondary small mb-0">
+                        Instant metrics on transaction volume, risk ratios, case backlogs, and customer activity distributions to optimize risk desk response times.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Workflow Section -->
+<section class="py-5" id="workflow" style="background: rgba(14, 16, 21, 0.5); border-top: 1px solid var(--tg-border); border-bottom: 1px solid var(--tg-border);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-danger-subtle text-red border border-danger border-opacity-25 px-3 py-1 mb-2 text-uppercase fw-semibold" style="font-size:0.75rem; letter-spacing:0.06em;">Detection Pipeline</span>
+            <h2 class="display-6 fw-bold text-white mb-2">How TrustGuard AI Works</h2>
+            <p class="text-secondary mx-auto" style="max-width: 620px;">
+                A rigorous 3-stage validation process turning raw high-volume financial transactions into actionable security decisions.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h5 class="fw-bold text-white mb-2">Ingestion & Vectorization</h5>
+                    <p class="text-secondary small mb-0">
+                        Incoming transactions are ingested with timestamps, transactional amounts, and 28 mathematical PCA features representing anonymized behavior vectors.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h5 class="fw-bold text-white mb-2">Ground Truth Classification</h5>
+                    <p class="text-secondary small mb-0">
+                        Transactions are verified against verified ground-truth labels. Normal transactions are cleared immediately, while high-risk anomalies are quarantined.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h5 class="fw-bold text-white mb-2">Analyst Review & Resolution</h5>
+                    <p class="text-secondary small mb-0">
+                        Bank analysts inspect anomalous vectors, assign case priorities, document forensic findings, and update case statuses to safeguard accounts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Portals Showcase Section -->
+<section class="py-5" id="portals">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-danger-subtle text-red border border-danger border-opacity-25 px-3 py-1 mb-2 text-uppercase fw-semibold" style="font-size:0.75rem; letter-spacing:0.06em;">Dedicated Workspaces</span>
+            <h2 class="display-6 fw-bold text-white mb-2">Built for Customers & Risk Teams</h2>
+            <p class="text-secondary mx-auto" style="max-width: 620px;">
+                Role-tailored interfaces providing transparency for cardholders and investigative depth for financial analysts.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Customer Portal Card -->
+            <div class="col-lg-6">
+                <div class="portal-card d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <span class="portal-tag bg-secondary-subtle text-white border border-secondary border-opacity-25">Customer Portal</span>
+                            <span class="badge bg-dark text-muted border border-secondary border-opacity-25">Self-Service</span>
+                        </div>
+                        <h3 class="fw-bold text-white mb-3">Cardholder Account Center</h3>
+                        <p class="text-secondary small mb-4">
+                            Transparent access to transaction history, real-time safety verification badges, and individual record inspection.
+                        </p>
+                        <ul class="list-unstyled d-flex flex-column gap-2 mb-4 text-secondary small">
+                            <li class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span>Personalized transaction ledger with safety indicators</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span>Deep inspection of anonymized PCA latent vectors</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span>Instant account registration and cryptographic login</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('customer.register_page') }}" class="btn btn-primary px-4 py-2">
+                            Create Account
+                        </a>
+                        <a href="{{ url_for('customer.login_page') }}" class="btn btn-outline-light px-3 py-2">
+                            Customer Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Analyst Portal Card -->
+            <div class="col-lg-6">
+                <div class="portal-card d-flex flex-column justify-content-between" style="border-color: rgba(245, 158, 11, 0.25);">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <span class="portal-tag bg-warning-subtle text-warning border border-warning border-opacity-25">Bank Portal</span>
+                            <span class="badge bg-dark text-warning border border-warning border-opacity-25">Staff Only</span>
+                        </div>
+                        <h3 class="fw-bold text-white mb-3">Bank Operations & Risk Desk</h3>
+                        <p class="text-secondary small mb-4">
+                            High-velocity investigation workbench for bank fraud officers. Manage flagged incidents, review customer accounts, and track metrics.
+                        </p>
+                        <ul class="list-unstyled d-flex flex-column gap-2 mb-4 text-secondary small">
+                            <li class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-warning"></i>
+                                <span>Full platform dataset search across 284,807 transactions</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-warning"></i>
+                                <span>Lifecycle case management (Open, Under Review, Resolved)</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-warning"></i>
+                                <span>Interactive analytics charts and customer directory</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('bank.login_page') }}" class="btn btn-warning px-4 py-2 text-dark">
+                            <i class="bi bi-shield-shaded me-1"></i> Bank Analyst Sign-In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Security Section -->
+<section class="py-5" id="security" style="background: rgba(14, 16, 21, 0.5); border-top: 1px solid var(--tg-border);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-danger-subtle text-red border border-danger border-opacity-25 px-3 py-1 mb-2 text-uppercase fw-semibold" style="font-size:0.75rem; letter-spacing:0.06em;">Security Architecture</span>
+            <h2 class="display-6 fw-bold text-white mb-2">Engineered for Trust & Compliance</h2>
+            <p class="text-secondary mx-auto" style="max-width: 620px;">
+                Built strictly with privacy-preserving techniques, robust authentication primitives, and audit-ready data safeguards.
+            </p>
+        </div>
+
+        <div class="row g-4 text-start">
+            <div class="col-md-6 col-lg-3">
+                <div class="card p-4 h-100 border-0" style="background: rgba(18, 20, 28, 0.65);">
+                    <div class="fs-4 text-red mb-3"><i class="bi bi-fingerprint"></i></div>
+                    <h6 class="fw-bold text-white mb-2">Zero PII Leakage</h6>
+                    <p class="text-muted small mb-0">
+                        Features V1-V28 are mathematical principal components. No raw account numbers, names, or addresses are stored in transaction records.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card p-4 h-100 border-0" style="background: rgba(18, 20, 28, 0.65);">
+                    <div class="fs-4 text-red mb-3"><i class="bi bi-key-fill"></i></div>
+                    <h6 class="fw-bold text-white mb-2">Bcrypt Key Derivation</h6>
+                    <p class="text-muted small mb-0">
+                        All user and analyst credentials are encrypted with salted, adaptive bcrypt hashing to prevent dictionary attacks.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card p-4 h-100 border-0" style="background: rgba(18, 20, 28, 0.65);">
+                    <div class="fs-4 text-red mb-3"><i class="bi bi-person-bounding-box"></i></div>
+                    <h6 class="fw-bold text-white mb-2">Session RBAC Guards</h6>
+                    <p class="text-muted small mb-0">
+                        Server-side decorators rigorously isolate customer accounts and bank administration capabilities from unauthorized requests.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card p-4 h-100 border-0" style="background: rgba(18, 20, 28, 0.65);">
+                    <div class="fs-4 text-red mb-3"><i class="bi bi-database-lock"></i></div>
+                    <h6 class="fw-bold text-white mb-2">Read-Only Dataset</h6>
+                    <p class="text-muted small mb-0">
+                        Ground truth transaction records in creditcard.csv remain immutable; case state and notes are managed in structured SQLite tables.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA Section -->
+<section class="py-5" style="border-top: 1px solid var(--tg-border); position: relative;">
+    <div class="container py-5 text-center">
+        <div class="p-5 rounded-4" style="background: radial-gradient(circle at center, rgba(239, 35, 60, 0.14) 0%, rgba(18, 20, 28, 0.9) 70%); border: 1px solid rgba(239, 35, 60, 0.28); box-shadow: 0 16px 48px rgba(0,0,0,0.6);">
+            <h2 class="display-6 fw-bold text-white mb-3">Ready to Secure Your Financial Operations?</h2>
+            <p class="text-secondary mx-auto mb-4" style="max-width: 580px;">
+                Experience intelligent transaction monitoring, PCA latent vector analysis, and rapid fraud case triage today.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="{{ url_for('customer.register_page') }}" class="btn btn-primary btn-lg px-4 py-2">
+                    Create Customer Account
+                </a>
+                <a href="{{ url_for('bank.login_page') }}" class="btn btn-outline-warning btn-lg px-4 py-2">
+                    <i class="bi bi-bank me-1"></i> Bank Analyst Access
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

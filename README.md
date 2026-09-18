@@ -1,129 +1,127 @@
 # TrustGuard AI
 
-TrustGuard AI is an AI-powered financial security platform. The repository currently contains **MODULE 1 (Basic Customer Portal)** and **MODULE 2 (Basic Bank Portal)**.
+**AI-Powered Financial Security & Fraud Review Platform**
+
+TrustGuard AI is a financial security platform designed to provide separate **Customer** and **Bank Analyst** portals for transaction monitoring, fraud review, customer management, and dataset-based analysis.
+
+> **Current Submission:** Customer Portal + Bank Analyst Portal
 
 ---
 
-## 1. System Overview & Modules
+## 🚀 Key Features
 
-```
-                                  +-----------------------------+
-                                  |     data/creditcard.csv     |
-                                  |  (Dataset Benchmark Source) |
-                                  +--------------+--------------+
-                                                 | (On-demand lookup & sampling)
-                                                 v
-+------------------------+        +-----------------------------+        +------------------------+
-|    Customer Portal     | <----> |     Flask Backend API       | <----> |      Bank Portal       |
-|  - Register / Login    | (Fetch)|  (Auth, Services, Routes)   | (Fetch)|  - Operations Dash     |
-|  - Account Dashboard   |        +--------------+--------------+        |  - Dataset Browser     |
-|  - Assigned Tx History |                       | (ORM Queries)         |  - Fraud Cases (CRUD)  |
-|  - Feature Inspection  |                       v                       |  - Customer Directory  |
-+------------------------+        +-----------------------------+        |  - Class Analytics     |
-                                  |    database/trustguard.db   |        +------------------------+
-                                  |      (SQLite Database)      |
-                                  +-----------------------------+
-```
+### 👤 Customer Portal
 
-### Module 1 &mdash; Basic Customer Portal
-- User registration & session-based authentication.
-- Automatically seeds a realistic sample of transactions from `creditcard.csv` to new customer accounts.
-- Customer dashboard with 4 metric summary cards and recent transactions.
-- Transactions list with search, status filtering, and pagination.
-- Transaction feature inspection view with anonymized features $V_1..V_{28}$ and research disclaimer.
+* Customer registration and secure login
+* Personal account dashboard
+* Transaction history with search and filtering
+* Transaction details and feature inspection
+* Session-based authentication
 
-### Module 2 &mdash; Basic Bank Portal
-- Role-based access control protecting bank routes and APIs (`role='BANK'`).
-- Auto-seeded demo bank analyst account (`bank@trustguard.ai` / `Bank@123`).
-- Bank Operations Dashboard with system-wide volume, ground truth dataset counts, customer count, and open cases.
-- Dataset Transactions Browser supporting backend pagination across all 284,807 transactions with row search and class filters.
-- Direct review case initiation from any dataset transaction.
-- Fraud Review Case management (listing, filtering by status, viewing details, updating priority, status, investigation notes, and resolution).
-- Sanitized Customer Directory (strictly no passwords or credentials exposed).
-- Descriptive dataset analytics & visual charts (Chart.js) for class breakdown and case distribution.
+### 🏦 Bank Analyst Portal
+
+* Role-based bank authentication
+* Operations dashboard with transaction and case statistics
+* Large-scale transaction dataset browser
+* Transaction search, filtering, and pagination
+* Fraud review case creation and management
+* Case priority, status, investigation notes, and resolution
+* Sanitized customer directory
+* Dataset analytics and visual charts
+
+### 🔐 Security
+
+* Password hashing
+* Session-based authentication
+* Role-based access control
+* Protected bank APIs and routes
+* Customer credentials are not exposed through the bank portal
 
 ---
 
-## 2. Technology Stack
+## 🏗️ System Architecture
 
-- **Backend**:
-  - Python 3.10+
-  - Flask (Modular application with Blueprints)
-  - Flask-SQLAlchemy (ORM)
-  - SQLite (Local database)
-  - Pandas (High-performance CSV slicing & queries)
-  - Werkzeug (Password hashing)
-- **Frontend**:
-  - HTML5 & CSS3 (Custom Fintech Theme)
-  - Bootstrap 5 (Responsive Grid & Components)
-  - Bootstrap Icons
-  - Google Fonts (Inter)
-  - Chart.js (Descriptive distribution visualization)
-  - Vanilla JavaScript (`fetch()` API for all dynamic interactions)
-- **Dataset**:
-  - `data/creditcard.csv` (284,807 transactions with anonymized PCA features $V_1..V_{28}$, `Time`, `Amount`, `Class`).
+```text
+                    ┌─────────────────────────┐
+                    │   Credit Card Dataset   │
+                    │    284,807 Records      │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+┌──────────────────┐     ┌─────────────────────┐     ┌──────────────────┐
+│ Customer Portal  │◄───►│   Flask Backend     │◄───►│  Bank Portal     │
+│                  │     │                     │     │                  │
+│ • Login/Register │     │ • Authentication    │     │ • Dashboard      │
+│ • Dashboard      │     │ • REST APIs         │     │ • Transactions   │
+│ • Transactions   │     │ • Business Logic    │     │ • Fraud Cases    │
+│ • Details        │     │ • Database Access   │     │ • Analytics      │
+└──────────────────┘     └──────────┬──────────┘     └──────────────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │   SQLite Database   │
+                         │ Users / Cases /     │
+                         │ Application State   │
+                         └─────────────────────┘
+```
 
 ---
 
-## 3. Project Structure
+## 🛠️ Technology Stack
 
-```
+| Layer           | Technologies                                      |
+| --------------- | ------------------------------------------------- |
+| Backend         | Python, Flask, Flask-SQLAlchemy                   |
+| Frontend        | HTML5, CSS3, Bootstrap 5, JavaScript              |
+| Database        | SQLite                                            |
+| Data Processing | Pandas                                            |
+| Visualization   | Chart.js                                          |
+| Security        | Werkzeug Password Hashing, Session Authentication |
+| Dataset         | Credit Card Fraud Detection Dataset               |
+
+---
+
+## 📊 Dataset
+
+The project uses a credit-card transaction dataset containing **284,807 transactions**.
+
+The dataset includes:
+
+* `Time`
+* `Amount`
+* `V1`–`V28` anonymized features
+* `Class` — historical transaction label
+
+The original dataset is retained separately and accessed when required rather than duplicating all records into the application database.
+
+---
+
+## 📁 Project Structure
+
+```text
 trustguard-ai/
 │
 ├── backend/
-│   ├── __init__.py
-│   ├── app.py                      # Flask application factory & startup hooks
-│   ├── config.py                   # App configuration & paths
-│   ├── database.py                 # SQLAlchemy db instance
-│   ├── models.py                   # User, CustomerTransaction, FraudCase models
-│   │
+│   ├── app.py
+│   ├── config.py
+│   ├── database.py
+│   ├── models.py
 │   ├── services/
-│   │   ├── __init__.py
-│   │   ├── dataset_service.py      # creditcard.csv loader, pagination & features
-│   │   └── seed_service.py         # Demo bank user seeding helper
-│   │
 │   └── routes/
-│       ├── __init__.py
-│       ├── customer.py             # Customer auth & dashboard routes
-│       ├── transactions.py         # Customer transactions routes
-│       └── bank.py                 # Bank portal pages & REST APIs
-│
-├── data/
-│   └── creditcard.csv              # Original dataset (retained untouched)
-│
-├── database/
-│   └── trustguard.db               # SQLite database (auto-created at runtime)
 │
 ├── frontend/
 │   ├── templates/
-│   │   ├── base.html               # Shared role-aware layout & navbar
-│   │   │
-│   │   ├── customer_login.html     # Customer login page
-│   │   ├── customer_register.html  # Customer registration page
-│   │   ├── customer_dashboard.html # Customer dashboard
-│   │   ├── transactions.html       # Customer transactions list
-│   │   ├── transaction_details.html# Customer transaction details
-│   │   │
-│   │   ├── bank_login.html         # Bank login page
-│   │   ├── bank_dashboard.html     # Bank operations dashboard
-│   │   ├── bank_transactions.html  # Dataset browser (20/page)
-│   │   ├── bank_tx_details.html    # Bank transaction inspection & case creation
-│   │   ├── bank_cases.html         # Fraud review cases list
-│   │   ├── bank_case_details.html  # Case editor (status, priority, notes)
-│   │   ├── bank_customers.html     # Sanitized customer accounts directory
-│   │   └── bank_analytics.html     # Dataset distribution chart (Chart.js)
-│   │
 │   └── static/
-│       ├── css/
-│       │   └── style.css           # Custom styling & status badges
-│       └── js/
-│           ├── customer.js         # Customer auth & dashboard async client
-│           ├── transactions.js     # Customer transactions async client
-│           └── bank.js             # Bank operations async client
+│
+├── data/
+│   └── creditcard.csv
+│
+├── database/
+│   └── trustguard.db
 │
 ├── tests/
-│   ├── test_module1.py             # Module 1 unit & integration tests
-│   └── test_module2.py             # Module 2 bank portal & RBAC tests
+│   ├── test_module1.py
+│   └── test_module2.py
 │
 ├── requirements.txt
 ├── README.md
@@ -132,125 +130,134 @@ trustguard-ai/
 
 ---
 
-## 4. Database Structure & Relationship to Dataset
+## ⚙️ Installation & Setup
 
-### SQLite Database (`database/trustguard.db`)
-SQLite holds application-generated records and state:
+### 1. Clone the repository
 
-1. **`users` Table**:
-   - `id` (INTEGER, Primary Key)
-   - `name` (VARCHAR(120))
-   - `email` (VARCHAR(120), Unique)
-   - `password_hash` (VARCHAR(255))
-   - `role` (VARCHAR(50), `'CUSTOMER'` or `'BANK'`)
-   - `created_at` (DATETIME)
-2. **`customer_transactions` Table**:
-   - `id` (INTEGER, Primary Key)
-   - `user_id` (INTEGER, Foreign Key $\rightarrow$ `users.id`)
-   - `dataset_row_id` (INTEGER, index into `creditcard.csv`)
-   - `amount` (FLOAT)
-   - `transaction_time` (FLOAT)
-   - `class_label` (INTEGER, 0 or 1)
-   - `created_at` (DATETIME)
-3. **`fraud_cases` Table**:
-   - `id` (INTEGER, Primary Key)
-   - `transaction_id` (INTEGER, index into `creditcard.csv`)
-   - `created_by` (INTEGER, Foreign Key $\rightarrow$ `users.id`)
-   - `status` (VARCHAR(20), `'OPEN'`, `'UNDER_REVIEW'`, `'RESOLVED'`)
-   - `priority` (VARCHAR(20), `'LOW'`, `'MEDIUM'`, `'HIGH'`)
-   - `notes` (TEXT)
-   - `resolution` (TEXT)
-   - `created_at` (DATETIME)
-   - `updated_at` (DATETIME)
+```bash
+git clone <YOUR-GITHUB-REPOSITORY-URL>
+cd trustguard-ai
+```
 
-### Dataset Relationship
-- The original 284,807 rows are **not duplicated** into SQLite.
-- `creditcard.csv` serves as the benchmark dataset source.
-- Applications reference transactions by their zero-indexed `dataset_row_id`. Full $V_1..V_{28}$ features are retrieved on demand in constant time via `DatasetService`.
+### 2. Create a virtual environment
 
----
+**Windows:**
 
-## 5. Demo Credentials
-
-| Role | Email | Password | Access Portal |
-|---|---|---|---|
-| **Bank Analyst (Demo)** | `bank@trustguard.ai` | `Bank@123` | `/bank/login` |
-| **Customer** | *(Self-register or use registered account)* | *(Your password)* | `/customer/login` |
-
----
-
-## 6. Installation & How to Run
-
-### Windows (PowerShell / CMD)
-
-```powershell
-# 1. Activate virtual environment (optional)
+```bash
 python -m venv venv
 venv\Scripts\activate
+```
 
-# 2. Install dependencies
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# 3. Run all automated unit and integration tests
+### 4. Run tests
+
+```bash
 python -m unittest discover tests
+```
 
-# 4. Start the application
+### 5. Start the application
+
+```bash
 python backend/app.py
 ```
 
-The server runs at: **`http://127.0.0.1:5000`**
+Open:
+
+```text
+http://127.0.0.1:5000
+```
 
 ---
 
-## 7. Available Pages (UI Routes)
+## 🔑 Demo Access
 
-### Customer Portal Routes
-- `/customer/register` &mdash; Customer registration.
-- `/customer/login` &mdash; Customer sign in.
-- `/customer/dashboard` &mdash; Customer account overview.
-- `/customer/transactions` &mdash; Customer transactions history.
-- `/customer/transactions/<id>` &mdash; Customer transaction details.
-- `/customer/logout` &mdash; Customer sign out.
+### Bank Analyst
 
-### Bank Portal Routes
-- `/bank/login` &mdash; Bank analyst sign in.
-- `/bank/dashboard` &mdash; Bank operations dashboard.
-- `/bank/transactions` &mdash; Dataset transactions browser (20 per page).
-- `/bank/transactions/<row_id>` &mdash; Bank transaction inspection & case creation.
-- `/bank/cases` &mdash; Fraud review cases queue.
-- `/bank/cases/<case_id>` &mdash; Case investigation & resolution editor.
-- `/bank/customers` &mdash; Customer directory.
-- `/bank/analytics` &mdash; Dataset distribution analytics.
-- `/bank/logout` &mdash; Bank analyst sign out.
+```text
+Email:    bank@trustguard.ai
+Password: Bank@123
+```
+
+### Customer
+
+Create an account using the **Customer Registration** page.
+
+> **Note:** Demo credentials are intended for local/project demonstration only. Change or remove default credentials before production deployment.
 
 ---
 
-## 8. Backend REST API Endpoints
+## 🔄 Application Workflow
 
-### Customer APIs (`role='CUSTOMER'` required)
-- `POST /api/customer/register`
-- `POST /api/customer/login`
-- `POST /api/customer/logout`
-- `GET /api/customer/dashboard`
-- `GET /api/customer/transactions`
-- `GET /api/customer/transactions/<id>`
+```text
+Customer
+   │
+   ├── Register / Login
+   │
+   ├── View Dashboard
+   │
+   └── View Transactions
+          │
+          ▼
+      Transaction Details
 
-### Bank APIs (`role='BANK'` required)
-- `POST /api/bank/login`
-- `POST /api/bank/logout`
-- `GET /api/bank/dashboard` &mdash; Returns aggregate dataset stats, customer count, and open cases.
-- `GET /api/bank/transactions` &mdash; Paginated dataset query (`page`, `limit`, `status`, `q`).
-- `GET /api/bank/transactions/<row_id>` &mdash; Full transaction features and attached review case status.
-- `GET /api/bank/customers` &mdash; Sanitized customer list.
-- `GET /api/bank/cases` &mdash; List of fraud review cases (`status=ALL|OPEN|UNDER_REVIEW|RESOLVED`).
-- `POST /api/bank/cases` &mdash; Create a new case (`transaction_id`, `priority`, `notes`).
-- `GET /api/bank/cases/<case_id>` &mdash; Fetch single case and attached transaction summary.
-- `PUT /api/bank/cases/<case_id>` &mdash; Update case (`status`, `priority`, `notes`, `resolution`).
-- `GET /api/bank/analytics` &mdash; Descriptive statistics for Chart.js.
+
+Bank Analyst
+   │
+   ├── Login
+   │
+   ├── View Operations Dashboard
+   │
+   ├── Search Transactions
+   │
+   ├── Inspect Transaction
+   │
+   ├── Create Fraud Review Case
+   │
+   └── Investigate → Update → Resolve Case
+```
 
 ---
 
-## 9. Current Limitations & Roadmap
+## 🧪 Testing
 
-- **Descriptive Labels Only**: Transaction statuses reflect historical dataset ground truth labels (`0 = Normal`, `1 = Fraud`).
-- **Future ML Modules**: Supervised classification models (Random Forest, XGBoost), explainable AI (SHAP), dynamic risk scoring, risk threshold simulators, and the Trust Loop customer feedback workflow will be added in subsequent modules.
+Automated unit and integration tests are included for:
+
+* Customer authentication and portal functionality
+* Transaction operations
+* Bank portal functionality
+* Role-based access control
+* Fraud review case workflows
+
+Run all tests with:
+
+```bash
+python -m unittest discover tests
+```
+
+---
+
+## ⚠️ Current Scope
+
+The current submission focuses on the **customer and bank operational workflow** using historical transaction labels from the dataset.
+
+The current system does **not** yet provide live transaction fraud prediction or a trained machine-learning risk score.
+
+### Planned Enhancements
+
+* Machine-learning fraud classification
+* Dynamic transaction risk scoring
+* Explainable AI using SHAP
+* Risk threshold simulation
+* Customer feedback / Trust Loop
+* Real-time transaction monitoring
+
+---
+
+## 🎯 Project Objective
+
+TrustGuard AI aims to provide a structured financial-security workflow where customers can view their transaction activity while bank analysts can inspect transactions, manage fraud-review cases, and analyze historical transaction data through a unified platform.

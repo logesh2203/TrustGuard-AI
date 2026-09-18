@@ -17,9 +17,9 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="bg-light">
+<body class="d-flex flex-column min-vh-100">
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-navy sticky-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-rednoir sticky-top">
         <div class="container">
             {% if session.get('user_role') == 'BANK' %}
             <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('bank.dashboard_page') }}">
@@ -27,19 +27,26 @@
                     <i class="bi bi-bank text-warning"></i>
                 </span>
                 <span>TrustGuard <span class="text-primary-accent">AI</span></span>
-                <span class="badge bg-warning-subtle text-warning-emphasis border ms-1 badge-module">Bank Portal</span>
+                <span class="badge bg-warning-subtle text-warning-emphasis border ms-1 badge-portal-type">Bank Portal</span>
             </a>
-            {% else %}
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('customer.dashboard_page') if session.get('user_id') else url_for('customer.login_page') }}">
+            {% elif session.get('user_role') == 'CUSTOMER' %}
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('customer.dashboard_page') }}">
                 <span class="brand-icon d-inline-flex align-items-center justify-content-center">
                     <i class="bi bi-shield-lock-fill text-primary-accent"></i>
                 </span>
                 <span>TrustGuard <span class="text-primary-accent">AI</span></span>
-                <span class="badge bg-secondary-subtle text-secondary-emphasis border ms-1 badge-module">Customer</span>
+                <span class="badge bg-secondary-subtle text-secondary-emphasis border ms-1 badge-portal-type">Customer</span>
+            </a>
+            {% else %}
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('customer.index') }}">
+                <span class="brand-icon d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-shield-lock-fill text-primary-accent"></i>
+                </span>
+                <span>TrustGuard <span class="text-primary-accent">AI</span></span>
             </a>
             {% endif %}
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
@@ -74,7 +81,7 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                    <div class="user-pill d-none d-md-flex align-items-center gap-2 text-white-50 border-warning-subtle">
+                    <div class="user-pill d-none d-md-flex align-items-center gap-2 text-white-50">
                         <i class="bi bi-person-badge-fill fs-5 text-warning"></i>
                         <span class="text-light fw-medium">{{ session.get('user_name', 'Bank Analyst') }}</span>
                     </div>
@@ -93,7 +100,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if '/customer/transactions' in request.path %}active{% endif %}" href="{{ url_for('transactions.transactions_page') }}">
-                            <i class="bi bi-receipt-cutoff me-1"></i> Transactions
+                            <i class="bi bi-receipt-cutoff me-1"></i> My Transactions
                         </a>
                     </li>
                 </ul>
@@ -109,20 +116,32 @@
 
                 {% else %}
                 <!-- Public / Unauthenticated Navigation Links -->
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-1">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-1 gap-lg-2">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/customer/login' %}active{% endif %}" href="{{ url_for('customer.login_page') }}">
-                            <i class="bi bi-person me-1"></i> Customer Login
-                        </a>
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{{ url_for('customer.index') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary btn-sm ms-lg-2 px-3" href="{{ url_for('customer.register_page') }}">
-                            <i class="bi bi-person-plus-fill me-1"></i> Register
-                        </a>
+                        <a class="nav-link" href="{{ url_for('customer.index') }}#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('customer.index') }}#workflow">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('customer.index') }}#security">Security</a>
                     </li>
                     <li class="nav-item ms-lg-2">
+                        <a class="nav-link {% if request.path == '/customer/login' %}active{% endif %}" href="{{ url_for('customer.login_page') }}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-1">
+                        <a class="btn btn-primary btn-sm px-3" href="{{ url_for('customer.register_page') }}">
+                            Get Started
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-1">
                         <a class="btn btn-outline-warning btn-sm px-3" href="{{ url_for('bank.login_page') }}">
-                            <i class="bi bi-bank me-1"></i> Bank Staff
+                            <i class="bi bi-bank me-1"></i> Bank Portal
                         </a>
                     </li>
                 </ul>
@@ -143,19 +162,39 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="main-content py-4">
+    <main class="main-content {% block main_class %}py-4{% endblock %}">
+        {% block full_width_content %}
         <div class="container">
             {% block content %}{% endblock %}
         </div>
+        {% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="footer py-3 bg-white border-top text-center text-muted">
-        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-            <small>&copy; 2026 TrustGuard AI &bull; Modules 1 & 2 Active</small>
-            <div class="small">
-                <a href="{{ url_for('customer.login_page') }}" class="text-muted text-decoration-none me-3">Customer Portal</a>
-                <a href="{{ url_for('bank.login_page') }}" class="text-muted text-decoration-none">Bank Portal</a>
+    <footer class="footer-rednoir py-4 mt-auto">
+        <div class="container">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-5 text-center text-md-start">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                        <span class="brand-icon d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.85rem;">
+                            <i class="bi bi-shield-lock-fill text-primary-accent"></i>
+                        </span>
+                        <span class="fw-bold text-white small">TrustGuard <span class="text-primary-accent">AI</span></span>
+                    </div>
+                    <p class="text-muted small mb-0">&copy; 2026 TrustGuard AI &bull; Intelligent Financial Security Platform</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);">
+                        <span class="d-inline-block rounded-circle" style="width:6px; height:6px; background:#10b981;"></span>
+                        <span class="text-success small fw-medium" style="font-size:0.75rem;">All Detection Nodes Active</span>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center text-md-end">
+                    <div class="small">
+                        <a href="{{ url_for('customer.login_page') }}" class="text-secondary text-decoration-none me-3 hover-white">Customer</a>
+                        <a href="{{ url_for('bank.login_page') }}" class="text-secondary text-decoration-none hover-white">Bank Analyst</a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>

@@ -1,5 +1,5 @@
 /**
- * TrustGuard AI - Bank Portal JS (Module 2)
+ * TrustGuard AI - Bank Portal JS
  * Handles Bank Auth, Operations Dashboard, Dataset Browser, Case Management, Customers, and Analytics.
  */
 
@@ -950,16 +950,23 @@ async function loadBankAnalytics() {
                     labels: ['Normal (Class 0)', 'Fraud-Labeled (Class 1)'],
                     datasets: [{
                         data: [data.normal_transactions, data.fraud_transactions],
-                        backgroundColor: ['#059669', '#dc2626'],
+                        backgroundColor: ['#10b981', '#ef233c'],
                         borderWidth: 2,
-                        borderColor: '#ffffff'
+                        borderColor: '#12141c'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom' }
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: 'Inter', size: 12 },
+                                padding: 15
+                            }
+                        }
                     }
                 }
             });
@@ -976,7 +983,7 @@ async function loadBankAnalytics() {
                     datasets: [{
                         label: 'Cases',
                         data: [cases.open, cases.under_review, cases.resolved],
-                        backgroundColor: ['#f59e0b', '#2563eb', '#059669'],
+                        backgroundColor: ['#f59e0b', '#38bdf8', '#10b981'],
                         borderRadius: 6
                     }]
                 },
@@ -984,9 +991,14 @@ async function loadBankAnalytics() {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+                        },
                         y: {
                             beginAtZero: true,
-                            ticks: { stepSize: 1 }
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { stepSize: 1, color: '#94a3b8', font: { family: 'Inter' } }
                         }
                     },
                     plugins: {
