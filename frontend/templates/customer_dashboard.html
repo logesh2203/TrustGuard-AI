@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Dashboard - TrustGuard AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Welcome Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Customer Portal</span>
+                <span class="badge bg-light text-muted border px-2 py-1">Module 1 Active</span>
+            </div>
+            <h2 class="fw-bold text-navy mb-1" id="dashboardWelcome">Welcome to TrustGuard AI</h2>
+            <p class="text-muted small mb-0">Overview of your account transaction activity and dataset label classifications.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="refreshDashboardBtn">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <a href="{{ url_for('transactions.transactions_page') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                <i class="bi bi-receipt"></i> View All Transactions
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Metric Cards -->
+    <div class="row g-3 mb-4" id="metricCardsRow">
+        <!-- Total Transactions -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Total Transactions</span>
+                        <div class="metric-icon-wrap bg-primary-subtle text-primary">
+                            <i class="bi bi-credit-card-2-front"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-0 metric-value" id="statTotal">-</h3>
+                    <small class="text-muted">Assigned from dataset</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Normal Transactions -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Normal Transactions</span>
+                        <div class="metric-icon-wrap bg-success-subtle text-success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-success mb-0 metric-value" id="statNormal">-</h3>
+                    <small class="text-muted">Dataset Class: 0 (Normal)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fraud-Labeled Transactions -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Fraud-Labeled</span>
+                        <div class="metric-icon-wrap bg-danger-subtle text-danger">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-danger mb-0 metric-value" id="statFraud">-</h3>
+                    <small class="text-muted">Dataset Class: 1 (Fraud)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Requiring Attention -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Requires Attention</span>
+                        <div class="metric-icon-wrap bg-warning-subtle text-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-warning mb-0 metric-value" id="statAttention">-</h3>
+                    <small class="text-muted">Flagged by dataset label</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Table Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-primary"></i>
+                <h5 class="fw-bold text-navy mb-0">Recent Transactions</h5>
+            </div>
+            <a href="{{ url_for('transactions.transactions_page') }}" class="btn btn-outline-primary btn-sm">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="recentTransactionsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Transaction ID</th>
+                            <th scope="col">Dataset Time (s)</th>
+                            <th scope="col">Amount ($)</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTransactionsBody">
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                Loading recent transaction data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info banner regarding Module 1 labels -->
+    <div class="alert alert-secondary border-0 bg-white shadow-sm p-3 d-flex align-items-start gap-3">
+        <i class="bi bi-info-circle-fill text-primary fs-5 mt-1"></i>
+        <div class="small text-secondary">
+            <strong class="text-dark">Dataset Ground Truth (Module 1):</strong> Transaction status badges and metrics in this module reflect the ground truth <code class="text-primary">Class</code> field from the provided <code class="text-primary">creditcard.csv</code> dataset (<code class="text-dark">0 = Normal</code>, <code class="text-dark">1 = Fraud</code>). Machine learning risk models and AI predictions will be introduced in subsequent modules.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/customer.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboardData();
+        const refreshBtn = document.getElementById('refreshDashboardBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => loadDashboardData());
+        }
+    });
+</script>
+{% endblock %}

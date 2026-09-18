@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Bank Analyst Login - TrustGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center auth-container">
+    <div class="col-md-6 col-lg-5 col-xl-4">
+        <div class="card auth-card shadow-sm border-0 border-top border-warning border-3">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    <div class="auth-icon-wrap mb-3 mx-auto bg-warning-subtle text-warning">
+                        <i class="bi bi-bank fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-navy mb-1">Bank Portal Login</h3>
+                    <p class="text-muted small">Authorized bank analysts and fraud operations staff only</p>
+                </div>
+
+                <div id="bankLoginFeedback"></div>
+
+                <form id="bankLoginForm" novalidate>
+                    <div class="mb-3">
+                        <label for="bankEmail" class="form-label fw-medium text-secondary small">Bank Staff Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person-badge text-muted"></i></span>
+                            <input type="email" class="form-control border-start-0 ps-0" id="bankEmail" name="email" value="bank@trustguard.ai" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bankPassword" class="form-label fw-medium text-secondary small">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                            <input type="password" class="form-control border-start-0 ps-0" id="bankPassword" name="password" value="Bank@123" required>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning py-2 px-3 small border-0 bg-warning-subtle text-warning-emphasis mb-4">
+                        <div class="fw-semibold"><i class="bi bi-shield-lock me-1"></i> Demo Credentials:</div>
+                        <div class="font-monospace mt-1">bank@trustguard.ai &bull; Bank@123</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 text-dark" id="bankLoginSubmitBtn">
+                        <span>Sign In as Bank Analyst</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <p class="small text-muted mb-0">Are you a regular customer? 
+                        <a href="{{ url_for('customer.login_page') }}" class="text-primary-accent fw-semibold text-decoration-none">Customer Portal</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bank.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initBankLogin();
+    });
+</script>
+{% endblock %}

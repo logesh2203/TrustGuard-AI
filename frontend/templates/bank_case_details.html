@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Case Details - TrustGuard AI{% endblock %}
+
+{% block content %}
+<div class="bank-case-details-wrapper" data-case-id="{{ case_id }}">
+    <!-- Top Back Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('bank.cases_page') }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i> Back to Cases
+        </a>
+        <span class="badge bg-light text-dark border px-3 py-2 fw-bold" id="headerCaseBadge">Case #{{ case_id }}</span>
+    </div>
+
+    <!-- Feedback Container -->
+    <div id="caseFeedback"></div>
+
+    <!-- Loading State -->
+    <div id="caseLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading case...</span>
+        </div>
+        <p class="text-muted mt-2 small">Loading case details and investigation records...</p>
+    </div>
+
+    <!-- Case Editor Container -->
+    <div id="caseContent" style="display: none;">
+        <div class="row g-4 mb-4">
+            <!-- Left Column: Case Information & Attached Transaction -->
+            <div class="col-lg-5">
+                <!-- Case Metadata -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle text-primary"></i> Case Overview
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Case ID</span>
+                                <span class="fw-bold text-dark" id="dispCaseId">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Current Status</span>
+                                <span id="dispCaseStatus">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Priority</span>
+                                <span id="dispCasePriority">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Created By</span>
+                                <span class="fw-semibold text-dark" id="dispCreatedBy">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Created At</span>
+                                <span class="text-muted small" id="dispCreatedAt">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Last Updated</span>
+                                <span class="text-muted small" id="dispUpdatedAt">-</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Attached Transaction Summary -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-receipt text-primary"></i> Attached Transaction
+                        </h6>
+                        <a href="#" id="viewTxDetailsLink" class="btn btn-outline-primary btn-sm py-0 px-2">
+                            Full Features <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted small">Dataset Row ID:</span>
+                            <span class="fw-bold font-monospace text-dark" id="txSummaryRowId">-</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted small">Amount:</span>
+                            <span class="fw-bold text-dark fs-5" id="txSummaryAmount">-</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted small">Time Offset:</span>
+                            <span class="text-secondary small" id="txSummaryTime">-</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Dataset Ground Truth:</span>
+                            <span id="txSummaryBadge">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Case Management & Resolution Form -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-pencil-square text-warning"></i> Case Investigation &amp; Resolution
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="caseEditForm">
+                            <div class="row g-3 mb-3">
+                                <!-- Status Selector -->
+                                <div class="col-sm-6">
+                                    <label for="editCaseStatus" class="form-label fw-semibold text-secondary small">Case Status</label>
+                                    <select class="form-select" id="editCaseStatus" required>
+                                        <option value="OPEN">Open</option>
+                                        <option value="UNDER_REVIEW">Under Review</option>
+                                        <option value="RESOLVED">Resolved</option>
+                                    </select>
+                                </div>
+
+                                <!-- Priority Selector -->
+                                <div class="col-sm-6">
+                                    <label for="editCasePriority" class="form-label fw-semibold text-secondary small">Priority Level</label>
+                                    <select class="form-select" id="editCasePriority" required>
+                                        <option value="LOW">Low</option>
+                                        <option value="MEDIUM">Medium</option>
+                                        <option value="HIGH">High</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Investigation Notes -->
+                            <div class="mb-3">
+                                <label for="editCaseNotes" class="form-label fw-semibold text-secondary small">Investigation Notes</label>
+                                <textarea class="form-control" id="editCaseNotes" rows="4" placeholder="Enter findings, transaction history context, or customer contact notes..."></textarea>
+                            </div>
+
+                            <!-- Resolution -->
+                            <div class="mb-4">
+                                <label for="editCaseResolution" class="form-label fw-semibold text-secondary small">Resolution / Decision Details</label>
+                                <textarea class="form-control" id="editCaseResolution" rows="3" placeholder="State final determination (e.g., Customer confirmed transaction / Confirmed fraudulent activity / Account secured)..."></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ url_for('bank.cases_page') }}" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2" id="saveCaseBtn">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Save Changes</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bank.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const wrapper = document.querySelector('.bank-case-details-wrapper');
+        const caseId = wrapper ? wrapper.getAttribute('data-case-id') : null;
+        if (caseId) {
+            loadBankCaseDetails(caseId);
+        }
+    });
+</script>
+{% endblock %}

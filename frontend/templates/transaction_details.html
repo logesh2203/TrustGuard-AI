@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction Details - TrustGuard AI{% endblock %}
+
+{% block content %}
+<div class="transaction-details-wrapper" data-tx-id="{{ tx_id }}">
+    <!-- Top Back Navigation -->
+    <div class="mb-4">
+        <a href="{{ url_for('transactions.transactions_page') }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i> Back to Transactions
+        </a>
+    </div>
+
+    <!-- Error container if load fails -->
+    <div id="txDetailsError"></div>
+
+    <!-- Loading State -->
+    <div id="txDetailsLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2 small">Loading transaction details from database & dataset...</p>
+    </div>
+
+    <!-- Content Container (Hidden until fetched) -->
+    <div id="txDetailsContent" style="display: none;">
+        <!-- Header Banner -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="text-muted small">Transaction Reference</span>
+                            <span class="badge bg-light text-dark border fw-bold" id="detailTxId">TX-#</span>
+                        </div>
+                        <h2 class="fw-bold text-navy mb-0" id="detailAmount">$0.00</h2>
+                    </div>
+                    <div class="text-md-end">
+                        <span class="d-block text-muted small mb-1">Dataset Status Classification</span>
+                        <div id="detailStatusBadge">
+                            <!-- Status Badge inserted by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Core Transaction Information -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-card-checklist text-primary"></i> Transaction Summary
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Transaction ID</span>
+                                <span class="fw-semibold text-dark" id="summaryTxId">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Dataset Row Index</span>
+                                <span class="fw-semibold text-dark font-monospace" id="summaryRowIndex">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Transaction Amount</span>
+                                <span class="fw-bold text-dark" id="summaryAmount">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Elapsed Time Offset</span>
+                                <span class="fw-semibold text-dark" id="summaryTime">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Class Ground Truth</span>
+                                <span class="fw-semibold text-dark" id="summaryClassLabel">-</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted">Assigned To Account</span>
+                                <span class="fw-semibold text-dark" id="summaryCreated">-</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dataset Information Notice -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 h-100 bg-white">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-square-fill text-primary"></i> Dataset Information
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-primary-subtle border border-primary-subtle rounded-3 p-3 mb-3">
+                            <h6 class="fw-bold text-primary mb-1">
+                                <i class="bi bi-shield-check me-1"></i> Anonymized Research Features
+                            </h6>
+                            <p class="mb-0 text-dark small" id="datasetDisclaimerText">
+                                The transaction contains anonymized features used for machine-learning research. V1-V28 are anonymized transaction features.
+                            </p>
+                        </div>
+                        <p class="text-muted small">
+                            In accordance with data governance rules for the credit card dataset:
+                        </p>
+                        <ul class="text-muted small ps-3 mb-3">
+                            <li>Features <code class="text-secondary">V1</code> through <code class="text-secondary">V28</code> represent numerical components obtained via Principal Component Analysis (PCA).</li>
+                            <li>No real-world financial identities or personal credentials are linked to these anonymized variables.</li>
+                            <li>The <code class="text-secondary">Class</code> variable denotes the verified transaction integrity label (<code class="text-secondary">0 = Normal</code>, <code class="text-secondary">1 = Fraud</code>).</li>
+                        </ul>
+                        <div class="d-flex align-items-center gap-2 text-secondary small">
+                            <i class="bi bi-filetype-csv text-primary"></i>
+                            <span>Source: <strong class="text-dark">data/creditcard.csv</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anonymized Features Technical View (V1 - V28) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu text-primary"></i> Technical Feature Values (V1 &ndash; V28)
+                    </h5>
+                    <small class="text-muted">Exact values loaded directly from the original CSV row</small>
+                </div>
+                <span class="badge bg-secondary-subtle text-secondary border">28 Features</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-2" id="vFeaturesGrid">
+                    <!-- 28 Feature Cards populated dynamically by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/transactions.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const wrapper = document.querySelector('.transaction-details-wrapper');
+        const txId = wrapper ? wrapper.getAttribute('data-tx-id') : null;
+        if (txId) {
+            loadTransactionDetails(txId);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Bank Dataset Analytics - TrustGuard AI{% endblock %}
+
+{% block content %}
+<div class="bank-analytics-wrapper">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">Basic Analytics</span>
+                <span class="badge bg-light text-muted border px-2 py-1">Descriptive Stats</span>
+            </div>
+            <h2 class="fw-bold text-navy mb-1">Dataset Distribution Analytics</h2>
+            <p class="text-muted small mb-0">Overview of the class distribution in creditcard.csv and active review case metrics.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="refreshAnalyticsBtn">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <a href="{{ url_for('bank.dashboard_page') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Bank Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Total Volume</span>
+                    <h3 class="fw-bold text-dark mb-0 metric-value" id="anaTotal">-</h3>
+                    <small class="text-muted">Total CSV rows</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Normal Ratio</span>
+                    <h3 class="fw-bold text-success mb-0 metric-value" id="anaNormalPct">-</h3>
+                    <small class="text-muted" id="anaNormalCount">- normal txs</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Fraud-Label Ratio</span>
+                    <h3 class="fw-bold text-danger mb-0 metric-value" id="anaFraudPct">-</h3>
+                    <small class="text-muted" id="anaFraudCount">- fraud txs</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Total Fraud Cases</span>
+                    <h3 class="fw-bold text-warning-emphasis mb-0 metric-value" id="anaTotalCases">-</h3>
+                    <small class="text-muted" id="anaResolvedCases">- resolved</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Class Distribution Chart -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-pie-chart text-primary"></i> Dataset Class Breakdown
+                    </h5>
+                </div>
+                <div class="card-body p-4 d-flex align-items-center justify-content-center" style="min-height: 320px;">
+                    <div style="width: 100%; max-width: 340px; height: 280px; position: relative;">
+                        <canvas id="classDistChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center py-2 text-muted small border-top">
+                    Class 0: Normal (99.83%) &bull; Class 1: Fraud-Labeled (0.17%)
+                </div>
+            </div>
+        </div>
+
+        <!-- Case Status Breakdown -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold text-navy mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart-line text-warning"></i> Fraud Cases Status Breakdown
+                    </h5>
+                </div>
+                <div class="card-body p-4 d-flex align-items-center justify-content-center" style="min-height: 320px;">
+                    <div style="width: 100%; max-width: 400px; height: 280px; position: relative;">
+                        <canvas id="caseStatusChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center py-2 text-muted small border-top">
+                    Distribution of analyst review cases in SQLite
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bank.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBankAnalytics();
+        const refreshBtn = document.getElementById('refreshAnalyticsBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => loadBankAnalytics());
+        }
+    });
+</script>
+{% endblock %}
