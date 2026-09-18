@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +18,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body class="d-flex flex-column min-vh-100">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-rednoir sticky-top">
@@ -27,15 +29,18 @@
                     <i class="bi bi-bank text-warning"></i>
                 </span>
                 <span>TrustGuard <span class="text-primary-accent">AI</span></span>
-                <span class="badge bg-warning-subtle text-warning-emphasis border ms-1 badge-portal-type">Bank Portal</span>
+                <span class="badge bg-warning-subtle text-warning-emphasis border ms-1 badge-portal-type">Bank
+                    Portal</span>
             </a>
             {% elif session.get('user_role') == 'CUSTOMER' %}
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('customer.dashboard_page') }}">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold"
+                href="{{ url_for('customer.dashboard_page') }}">
                 <span class="brand-icon d-inline-flex align-items-center justify-content-center">
                     <i class="bi bi-shield-lock-fill text-primary-accent"></i>
                 </span>
                 <span>TrustGuard <span class="text-primary-accent">AI</span></span>
-                <span class="badge bg-secondary-subtle text-secondary-emphasis border ms-1 badge-portal-type">Customer</span>
+                <span
+                    class="badge bg-secondary-subtle text-secondary-emphasis border ms-1 badge-portal-type">Customer</span>
             </a>
             {% else %}
             <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('customer.index') }}">
@@ -45,37 +50,49 @@
                 <span>TrustGuard <span class="text-primary-accent">AI</span></span>
             </a>
             {% endif %}
-            
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarMain">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarMain">
                 {% if session.get('user_role') == 'BANK' %}
                 <!-- Bank Portal Navigation Links -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/bank/dashboard' %}active{% endif %}" href="{{ url_for('bank.dashboard_page') }}">
+                        <a class="nav-link {% if request.path == '/bank/dashboard' %}active{% endif %}"
+                            href="{{ url_for('bank.dashboard_page') }}">
                             <i class="bi bi-speedometer2 me-1"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if '/bank/transactions' in request.path %}active{% endif %}" href="{{ url_for('bank.transactions_page') }}">
+                        <a class="nav-link {% if request.path == '/bank/alerts' %}active{% endif %}"
+                            href="{{ url_for('bank.alerts_page') }}">
+                            <i class="bi bi-bell-fill text-danger me-1"></i> Fraud Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/bank/transactions' in request.path %}active{% endif %}"
+                            href="{{ url_for('bank.transactions_page') }}">
                             <i class="bi bi-receipt me-1"></i> Transactions
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if '/bank/cases' in request.path %}active{% endif %}" href="{{ url_for('bank.cases_page') }}">
+                        <a class="nav-link {% if '/bank/cases' in request.path %}active{% endif %}"
+                            href="{{ url_for('bank.cases_page') }}">
                             <i class="bi bi-folder-check me-1"></i> Fraud Cases
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if '/bank/customers' in request.path %}active{% endif %}" href="{{ url_for('bank.customers_page') }}">
+                        <a class="nav-link {% if '/bank/customers' in request.path %}active{% endif %}"
+                            href="{{ url_for('bank.customers_page') }}">
                             <i class="bi bi-people me-1"></i> Customers
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if '/bank/analytics' in request.path %}active{% endif %}" href="{{ url_for('bank.analytics_page') }}">
+                        <a class="nav-link {% if '/bank/analytics' in request.path %}active{% endif %}"
+                            href="{{ url_for('bank.analytics_page') }}">
                             <i class="bi bi-pie-chart me-1"></i> Analytics
                         </a>
                     </li>
@@ -85,7 +102,8 @@
                         <i class="bi bi-person-badge-fill fs-5 text-warning"></i>
                         <span class="text-light fw-medium">{{ session.get('user_name', 'Bank Analyst') }}</span>
                     </div>
-                    <a href="{{ url_for('bank.logout_page') }}" class="btn btn-outline-light btn-sm px-3 d-flex align-items-center gap-1" id="bankLogoutBtn">
+                    <a href="{{ url_for('bank.logout_page') }}"
+                        class="btn btn-outline-light btn-sm px-3 d-flex align-items-center gap-1" id="bankLogoutBtn">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </div>
@@ -94,12 +112,14 @@
                 <!-- Customer Portal Navigation Links -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/customer/dashboard' %}active{% endif %}" href="{{ url_for('customer.dashboard_page') }}">
+                        <a class="nav-link {% if request.path == '/customer/dashboard' %}active{% endif %}"
+                            href="{{ url_for('customer.dashboard_page') }}">
                             <i class="bi bi-grid-1x2-fill me-1"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if '/customer/transactions' in request.path %}active{% endif %}" href="{{ url_for('transactions.transactions_page') }}">
+                        <a class="nav-link {% if '/customer/transactions' in request.path %}active{% endif %}"
+                            href="{{ url_for('transactions.transactions_page') }}">
                             <i class="bi bi-receipt-cutoff me-1"></i> My Transactions
                         </a>
                     </li>
@@ -109,7 +129,8 @@
                         <i class="bi bi-person-circle fs-5 text-primary-accent"></i>
                         <span class="text-light fw-medium">{{ session.get('user_name', 'Customer') }}</span>
                     </div>
-                    <a href="{{ url_for('customer.logout_page') }}" class="btn btn-outline-light btn-sm px-3 d-flex align-items-center gap-1" id="logoutBtn">
+                    <a href="{{ url_for('customer.logout_page') }}"
+                        class="btn btn-outline-light btn-sm px-3 d-flex align-items-center gap-1" id="logoutBtn">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </div>
@@ -118,7 +139,8 @@
                 <!-- Public / Unauthenticated Navigation Links -->
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-1 gap-lg-2">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{{ url_for('customer.index') }}">Home</a>
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}"
+                            href="{{ url_for('customer.index') }}">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('customer.index') }}#features">Features</a>
@@ -130,7 +152,8 @@
                         <a class="nav-link" href="{{ url_for('customer.index') }}#security">Security</a>
                     </li>
                     <li class="nav-item ms-lg-2">
-                        <a class="nav-link {% if request.path == '/customer/login' %}active{% endif %}" href="{{ url_for('customer.login_page') }}">
+                        <a class="nav-link {% if request.path == '/customer/login' %}active{% endif %}"
+                            href="{{ url_for('customer.login_page') }}">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Login
                         </a>
                     </li>
@@ -176,23 +199,31 @@
             <div class="row align-items-center gy-3">
                 <div class="col-md-5 text-center text-md-start">
                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
-                        <span class="brand-icon d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;font-size:0.85rem;">
+                        <span class="brand-icon d-inline-flex align-items-center justify-content-center"
+                            style="width:24px;height:24px;font-size:0.85rem;">
                             <i class="bi bi-shield-lock-fill text-primary-accent"></i>
                         </span>
-                        <span class="fw-bold text-white small">TrustGuard <span class="text-primary-accent">AI</span></span>
+                        <span class="fw-bold text-white small">TrustGuard <span
+                                class="text-primary-accent">AI</span></span>
                     </div>
-                    <p class="text-muted small mb-0">&copy; 2026 TrustGuard AI &bull; Intelligent Financial Security Platform</p>
+                    <p class="text-muted small mb-0">&copy; 2026 TrustGuard AI &bull; Intelligent Financial Security
+                        Platform</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);">
-                        <span class="d-inline-block rounded-circle" style="width:6px; height:6px; background:#10b981;"></span>
-                        <span class="text-success small fw-medium" style="font-size:0.75rem;">All Detection Nodes Active</span>
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill"
+                        style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);">
+                        <span class="d-inline-block rounded-circle"
+                            style="width:6px; height:6px; background:#10b981;"></span>
+                        <span class="text-success small fw-medium" style="font-size:0.75rem;">All Detection Nodes
+                            Active</span>
                     </div>
                 </div>
                 <div class="col-md-3 text-center text-md-end">
                     <div class="small">
-                        <a href="{{ url_for('customer.login_page') }}" class="text-secondary text-decoration-none me-3 hover-white">Customer</a>
-                        <a href="{{ url_for('bank.login_page') }}" class="text-secondary text-decoration-none hover-white">Bank Analyst</a>
+                        <a href="{{ url_for('customer.login_page') }}"
+                            class="text-secondary text-decoration-none me-3 hover-white">Customer</a>
+                        <a href="{{ url_for('bank.login_page') }}"
+                            class="text-secondary text-decoration-none hover-white">Bank Analyst</a>
                     </div>
                 </div>
             </div>
@@ -201,7 +232,7 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Global Helper JS -->
     <script>
         // Global alert display helper
@@ -220,4 +251,5 @@
     </script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

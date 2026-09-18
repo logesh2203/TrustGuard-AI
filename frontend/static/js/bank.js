@@ -43,6 +43,8 @@ function getCaseStatusBadge(status) {
 // Helper for priority badge
 function getPriorityBadge(priority) {
     switch (priority) {
+        case 'CRITICAL':
+            return `<span class="badge-priority-critical"><i class="bi bi-fire me-1"></i>CRITICAL</span>`;
         case 'HIGH':
             return `<span class="badge-priority-high">HIGH</span>`;
         case 'MEDIUM':
@@ -51,6 +53,19 @@ function getPriorityBadge(priority) {
             return `<span class="badge-priority-low">LOW</span>`;
         default:
             return `<span class="badge bg-light text-dark border">${priority}</span>`;
+    }
+}
+
+// Helper for deterministic risk badge
+function getRiskBadge(riskLevel) {
+    switch (riskLevel) {
+        case 'HIGH':
+            return `<span class="badge-risk-high"><i class="bi bi-exclamation-octagon me-1"></i>HIGH</span>`;
+        case 'MEDIUM':
+            return `<span class="badge-risk-medium"><i class="bi bi-exclamation-triangle me-1"></i>MEDIUM</span>`;
+        case 'LOW':
+        default:
+            return `<span class="badge-risk-low"><i class="bi bi-shield-check me-1"></i>LOW</span>`;
     }
 }
 
@@ -149,37 +164,84 @@ async function loadBankDashboard() {
         const data = await response.json();
 
         // Update Stat Cards
-        document.getElementById('bankStatTotal').textContent = formatNumber(data.total_transactions);
-        document.getElementById('bankStatNormal').textContent = formatNumber(data.normal_transactions);
-        document.getElementById('bankStatFraud').textContent = formatNumber(data.fraud_transactions);
-        document.getElementById('bankStatCases').textContent = formatNumber(data.open_cases);
-        document.getElementById('bankStatCustomers').textContent = `${formatNumber(data.customer_count)} Accounts`;
+        const totalElem = document.getElementById('bankStatTotal');
+        if (totalElem) totalElem.textContent = formatNumber(data.total_transactions);
+        const normElem = document.getElementById('bankStatNormal');
+        if (normElem) normElem.textContent = formatNumber(data.normal_transactions);
+        const fraudElem = document.getElementById('bankStatFraud');
+        if (fraudElem) fraudElem.textContent = formatNumber(data.fraud_transactions);
+        const casesElem = document.getElementById('bankStatCases');
+        if (casesElem) casesElem.textContent = formatNumber(data.open_cases);
+        const custElem = document.getElementById('bankStatCustomers');
+        if (custElem) custElem.textContent = `${formatNumber(data.customer_count)} Accounts`;
+
+        // Update Operational Quick Stats
+        const repElem = document.getElementById('bankStatReports');
+        if (repElem) repElem.textContent = formatNumber(data.reported_cases || 0);
+        const revElem = document.getElementById('bankStatUnderReview');
+        if (revElem) revElem.textContent = formatNumber(data.under_review_cases || 0);
+        const resElem = document.getElementById('bankStatResolved');
+        if (resElem) resElem.textContent = formatNumber(data.resolved_cases || 0);
 
         // Update Recent Transactions Table
         const tbody = document.getElementById('bankRecentTxBody');
         if (tbody) {
             if (!data.recent_transactions || data.recent_transactions.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No recent transactions.</td></tr>`;
-                return;
+            } else {
+                let rows = '';
+                data.recent_transactions.forEach(tx => {
+                    rows += `
+                        <tr>
+                            <td class="ps-3 fw-bold font-monospace text-light">Row #${tx.id}</td>
+                            <td class="fw-bold">${formatCurrency(tx.amount)}</td>
+                            <td>${getRiskBadge(tx.risk_level || (tx.class_label === 1 ? 'HIGH' : 'LOW'))}</td>
+                            <td>${getBankStatusBadge(tx.class_label)}</td>
+                            <td class="text-end pe-3">
+                                <a href="/bank/transactions/${tx.id}" class="btn btn-sm btn-outline-primary py-1 px-2">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = rows;
             }
+        }
 
-            let rows = '';
-            data.recent_transactions.forEach(tx => {
-                rows += `
-                    <tr>
-                        <td class="ps-3 fw-bold font-monospace text-dark">Row #${tx.id}</td>
-                        <td class="text-muted small">${tx.transaction_time}s</td>
-                        <td class="fw-bold">${formatCurrency(tx.amount)}</td>
-                        <td>${getBankStatusBadge(tx.class_label)}</td>
-                        <td class="text-end pe-3">
-                            <a href="/bank/transactions/${tx.id}" class="btn btn-sm btn-outline-primary py-1 px-2">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = rows;
+        // Update Recent Case Activity Feed
+        const actContainer = document.getElementById('bankRecentActivityContainer');
+        if (actContainer) {
+            if (!data.recent_activity || data.recent_activity.length === 0) {
+                actContainer.innerHTML = `<div class="p-4 text-center text-muted">No recent case activity recorded.</div>`;
+            } else {
+                let actHtml = '<div class="list-group list-group-flush">';
+                data.recent_activity.forEach(act => {
+                    actHtml += `
+                        <div class="list-group-item p-3 border-bottom border-dark-subtle bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-light font-monospace">#CASE-${act.case_id}</span>
+                                <span class="small text-muted">${act.updated_at || act.created_at || ''}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                ${getPriorityBadge(act.priority)}
+                                ${getCaseStatusBadge(act.status)}
+                                <span class="badge ${act.is_customer_reported ? 'badge-status-reported' : 'bg-secondary-subtle text-muted'}">${act.creator_role}</span>
+                            </div>
+                            <div class="small text-secondary text-truncate" title="${act.notes || ''}">
+                                ${act.notes || 'Review event logged.'}
+                            </div>
+                            <div class="mt-2 text-end">
+                                <a href="/bank/cases/${act.case_id}" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.75rem;">
+                                    Details <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                actHtml += '</div>';
+                actContainer.innerHTML = actHtml;
+            }
         }
     } catch (error) {
         console.error('Bank dashboard error:', error);
@@ -194,13 +256,21 @@ function initBankTransactionsList() {
     let currentPage = 1;
     let currentPerPage = 20;
     let currentStatus = 'all';
+    let currentRisk = '';
+    let currentMinAmount = '';
+    let currentMaxAmount = '';
     let currentQuery = '';
 
     const searchInput = document.getElementById('bankTxSearchInput');
     const searchBtn = document.getElementById('bankTxSearchBtn');
     const statusFilter = document.getElementById('bankTxStatusFilter');
+    const riskFilter = document.getElementById('bankTxRiskFilter');
+    const minAmountInput = document.getElementById('bankTxMinAmount');
+    const maxAmountInput = document.getElementById('bankTxMaxAmount');
+    const applyFilterBtn = document.getElementById('bankTxApplyFilterBtn');
     const perPageSelect = document.getElementById('bankTxPerPage');
     const refreshBtn = document.getElementById('bankTxRefreshBtn');
+    const exportBtn = document.getElementById('bankTxExportBtn');
 
     async function fetchDatasetTransactions() {
         const tbody = document.getElementById('bankTxTableBody');
@@ -225,6 +295,9 @@ function initBankTransactionsList() {
                 status: currentStatus,
                 q: currentQuery
             });
+            if (currentRisk) queryParams.set('risk', currentRisk);
+            if (currentMinAmount !== '') queryParams.set('min_amount', currentMinAmount);
+            if (currentMaxAmount !== '') queryParams.set('max_amount', currentMaxAmount);
 
             const response = await fetch(`/api/bank/transactions?${queryParams.toString()}`, {
                 method: 'GET',
@@ -259,12 +332,13 @@ function initBankTransactionsList() {
 
             let rows = '';
             list.forEach(tx => {
+                const txRisk = tx.risk_level || (tx.class_label === 1 ? 'HIGH' : (tx.amount >= 500 ? 'MEDIUM' : 'LOW'));
                 rows += `
                     <tr>
-                        <td class="ps-3 fw-bold font-monospace text-dark">Row #${tx.id}</td>
+                        <td class="ps-3 fw-bold font-monospace text-light">Row #${tx.id}</td>
                         <td class="text-muted small">${tx.transaction_time}s</td>
                         <td class="fw-bold">${formatCurrency(tx.amount)}</td>
-                        <td class="font-monospace">${tx.class_label === 1 ? '<span class="text-danger fw-bold">1</span>' : '<span class="text-secondary">0</span>'}</td>
+                        <td>${getRiskBadge(txRisk)}</td>
                         <td>${getBankStatusBadge(tx.class_label)}</td>
                         <td class="text-end pe-3">
                             <a href="/bank/transactions/${tx.id}" class="btn btn-sm btn-outline-primary py-1 px-2">
@@ -371,6 +445,50 @@ function initBankTransactionsList() {
             currentStatus = statusFilter.value;
             currentPage = 1;
             fetchDatasetTransactions();
+        });
+    }
+
+    if (riskFilter) {
+        riskFilter.addEventListener('change', () => {
+            currentRisk = riskFilter.value;
+            currentPage = 1;
+            fetchDatasetTransactions();
+        });
+    }
+
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', () => {
+            currentMinAmount = minAmountInput ? minAmountInput.value.trim() : '';
+            currentMaxAmount = maxAmountInput ? maxAmountInput.value.trim() : '';
+            currentPage = 1;
+            fetchDatasetTransactions();
+        });
+    }
+
+    [minAmountInput, maxAmountInput].forEach(inp => {
+        if (inp) {
+            inp.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    currentMinAmount = minAmountInput ? minAmountInput.value.trim() : '';
+                    currentMaxAmount = maxAmountInput ? maxAmountInput.value.trim() : '';
+                    currentPage = 1;
+                    fetchDatasetTransactions();
+                }
+            });
+        }
+    });
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const exportParams = new URLSearchParams({
+                status: currentStatus,
+                q: currentQuery
+            });
+            if (currentRisk) exportParams.set('risk', currentRisk);
+            if (currentMinAmount !== '') exportParams.set('min_amount', currentMinAmount);
+            if (currentMaxAmount !== '') exportParams.set('max_amount', currentMaxAmount);
+            window.location.href = `/api/bank/transactions/export?${exportParams.toString()}`;
         });
     }
 
@@ -492,6 +610,7 @@ async function loadBankTransactionDetails(rowId) {
                             <option value="LOW">Low Priority</option>
                             <option value="MEDIUM" ${data.class_label === 1 ? 'selected' : ''}>Medium Priority</option>
                             <option value="HIGH" ${data.class_label === 1 ? 'selected' : ''}>High Priority</option>
+                            <option value="CRITICAL">Critical Priority</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -599,10 +718,15 @@ function initBankCasesList() {
 
     const filterGroup = document.getElementById('caseStatusFilterGroup');
     const refreshBtn = document.getElementById('refreshCasesBtn');
+    const exportBtn = document.getElementById('exportCasesBtn');
 
     async function fetchCases() {
         const tbody = document.getElementById('casesTableBody');
         const countElem = document.getElementById('totalCasesCount');
+
+        if (exportBtn) {
+            exportBtn.href = currentStatus && currentStatus !== 'ALL' ? `/api/bank/cases/export?status=${currentStatus}` : '/api/bank/cases/export';
+        }
 
         if (!tbody) return;
 
@@ -759,6 +883,9 @@ async function loadBankCaseDetails(caseId) {
         document.getElementById('editCaseNotes').value = data.notes || '';
         document.getElementById('editCaseResolution').value = data.resolution || '';
 
+        // Render Case Timeline
+        renderCaseTimeline(data.timeline);
+
         loading.style.display = 'none';
         content.style.display = 'block';
 
@@ -801,6 +928,9 @@ async function loadBankCaseDetails(caseId) {
                         document.getElementById('dispCasePriority').innerHTML = getPriorityBadge(priority);
                         if (putData.case && putData.case.updated_at) {
                             document.getElementById('dispUpdatedAt').textContent = putData.case.updated_at;
+                        }
+                        if (putData.case && putData.case.timeline) {
+                            renderCaseTimeline(putData.case.timeline);
                         }
                     } else {
                         feedback.innerHTML = `
@@ -1012,4 +1142,220 @@ async function loadBankAnalytics() {
         console.error('Error loading analytics:', error);
         showAlert(`Failed to load analytics: ${error.message}`, 'danger');
     }
+}
+
+/**
+ * 9. Case Event Timeline Renderer
+ */
+function renderCaseTimeline(timeline) {
+    const container = document.getElementById('caseTimelineContainer');
+    if (!container) return;
+
+    if (!timeline || timeline.length === 0) {
+        container.innerHTML = `<p class="text-muted small text-center my-3">No timeline events recorded yet.</p>`;
+        return;
+    }
+
+    let html = '<div class="case-timeline">';
+    timeline.forEach(ev => {
+        let badgeClass = 'badge-status-review';
+        if (ev.badge === 'Customer Reported' || ev.badge === 'Reported') {
+            badgeClass = 'badge-status-reported';
+        } else if (ev.badge === 'Resolved') {
+            badgeClass = 'badge-status-resolved';
+        } else if (ev.badge === 'Initiated' || ev.badge === 'Analyst Opened') {
+            badgeClass = 'badge-status-review';
+        }
+
+        html += `
+            <div class="case-timeline-item">
+                <div class="case-timeline-marker"></div>
+                <div class="case-timeline-content">
+                    <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+                        <strong class="text-light">${ev.title}</strong>
+                        <span class="badge bg-secondary-subtle text-muted small">${ev.timestamp}</span>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        By <span class="text-light fw-semibold">${ev.actor}</span>
+                        <span class="badge ${badgeClass} ms-1">${ev.badge}</span>
+                    </div>
+                    ${ev.description ? `<div class="small text-secondary bg-dark-subtle p-2 rounded border border-dark-subtle">${ev.description}</div>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+/**
+ * 10. Fraud Alert Center Handler
+ */
+async function loadBankAlerts() {
+    let currentFilter = 'ALL';
+    let searchQuery = '';
+    let allAlerts = [];
+
+    const refreshBtn = document.getElementById('refreshAlertsBtn');
+    const filterGroup = document.getElementById('alertFilterGroup');
+    const searchInput = document.getElementById('alertSearchInput');
+    const tbody = document.getElementById('alertsTableBody');
+
+    async function fetchAlerts() {
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div>
+                        Loading active fraud alerts &amp; anomalies...
+                    </td>
+                </tr>
+            `;
+        }
+
+        try {
+            const response = await fetch('/api/bank/alerts', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = '/bank/login';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`Failed to load fraud alerts (Status: ${response.status})`);
+            }
+
+            const data = await response.json();
+            allAlerts = data.alerts || [];
+
+            // Update stat cards
+            const totalElem = document.getElementById('alertStatTotal');
+            if (totalElem) totalElem.textContent = formatNumber(data.total_alerts || allAlerts.length);
+            const highElem = document.getElementById('alertStatHigh');
+            if (highElem) highElem.textContent = formatNumber(data.high_risk_count || 0);
+            const repElem = document.getElementById('alertStatReported');
+            if (repElem) repElem.textContent = formatNumber(data.customer_reported_count || 0);
+            const revElem = document.getElementById('alertStatReview');
+            if (revElem) revElem.textContent = formatNumber(data.under_review_count || 0);
+
+            renderAlerts();
+        } catch (err) {
+            console.error('Error fetching alerts:', err);
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i> ${err.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    function renderAlerts() {
+        if (!tbody) return;
+
+        let filtered = allAlerts.filter(a => {
+            if (currentFilter === 'CUSTOMER') {
+                if (a.source !== 'Customer Report') return false;
+            } else if (currentFilter === 'HIGH') {
+                if (a.risk_level !== 'HIGH') return false;
+            } else if (currentFilter === 'REVIEW') {
+                if (a.status !== 'Under Review') return false;
+            }
+
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                const txMatch = String(a.transaction_id).includes(q);
+                const caseMatch = a.case_id ? String(a.case_id).includes(q) : false;
+                const sourceMatch = a.source ? a.source.toLowerCase().includes(q) : false;
+                if (!txMatch && !caseMatch && !sourceMatch) return false;
+            }
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-shield-check fs-3 d-block mb-2 text-secondary"></i>
+                        No fraud alerts matching active filter: <strong>${currentFilter}</strong>.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let rows = '';
+        filtered.forEach(item => {
+            const sourceBadge = item.source === 'Customer Report'
+                ? `<span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-flag-fill me-1"></i>Customer Report</span>`
+                : (item.source === 'Analyst Flagged'
+                    ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle"><i class="bi bi-person-gear me-1"></i>Analyst Flagged</span>`
+                    : `<span class="badge bg-secondary-subtle text-secondary border"><i class="bi bi-database me-1"></i>Dataset Truth</span>`);
+
+            const statusBadge = item.status === 'Reported'
+                ? `<span class="badge-status-reported"><i class="bi bi-flag"></i> Reported</span>`
+                : (item.status === 'Under Review'
+                    ? `<span class="badge-status-review"><i class="bi bi-search"></i> Under Review</span>`
+                    : `<span class="badge-status-fraud"><i class="bi bi-shield-exclamation"></i> Ground Truth</span>`);
+
+            const actionBtn = item.case_id
+                ? `<a href="/bank/cases/${item.case_id}" class="btn btn-sm btn-outline-primary py-1 px-2">
+                       <i class="bi bi-folder2-open"></i> View Case #${item.case_id}
+                   </a>`
+                : `<a href="/bank/transactions/${item.transaction_id}" class="btn btn-sm btn-warning text-dark py-1 px-2 fw-semibold">
+                       <i class="bi bi-plus-circle"></i> Create Case
+                   </a>`;
+
+            rows += `
+                <tr>
+                    <td class="ps-3 fw-bold font-monospace text-light">
+                        <a href="/bank/transactions/${item.transaction_id}" class="text-decoration-none text-light">
+                            Row #${item.transaction_id}
+                        </a>
+                    </td>
+                    <td>${sourceBadge}</td>
+                    <td class="fw-bold">${formatCurrency(item.amount)}</td>
+                    <td>${getRiskBadge(item.risk_level)}</td>
+                    <td>${statusBadge}</td>
+                    <td>${getPriorityBadge(item.priority)}</td>
+                    <td class="text-end pe-3">${actionBtn}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = rows;
+    }
+
+    if (filterGroup) {
+        filterGroup.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterGroup.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('btn-primary', 'active');
+                    b.classList.add('btn-outline-secondary');
+                });
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-primary', 'active');
+                currentFilter = btn.getAttribute('data-filter') || 'ALL';
+                renderAlerts();
+            });
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            searchQuery = searchInput.value.trim();
+            renderAlerts();
+        });
+    }
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => fetchAlerts());
+    }
+
+    fetchAlerts();
 }

@@ -488,6 +488,89 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 12px rgba(239, 35, 60, 0.18);
 }
 
+.badge-status-reported {
+    background-color: rgba(245, 158, 11, 0.16);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-status-review {
+    background-color: rgba(56, 189, 248, 0.14);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-status-resolved {
+    background-color: rgba(16, 185, 129, 0.14);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Transaction Risk Badges (Low / Medium / High) */
+.badge-risk-low {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    padding: 0.22rem 0.55rem;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.03em;
+}
+
+.badge-risk-medium {
+    background-color: rgba(245, 158, 11, 0.16);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 0.22rem 0.55rem;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.03em;
+}
+
+.badge-risk-high {
+    background-color: rgba(239, 35, 60, 0.2);
+    color: #ff4d61;
+    border: 1px solid rgba(239, 35, 60, 0.5);
+    padding: 0.22rem 0.55rem;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.03em;
+    box-shadow: 0 0 10px rgba(239, 35, 60, 0.25);
+}
+
 /* Fraud Case Status Badges */
 .badge-case-open {
     background-color: rgba(245, 158, 11, 0.14);
@@ -529,6 +612,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Priority Badges */
+.badge-priority-critical {
+    background: linear-gradient(135deg, rgba(239, 35, 60, 0.3) 0%, rgba(185, 28, 28, 0.4) 100%);
+    color: #ff4d61;
+    border: 1px solid #ef233c;
+    padding: 0.25rem 0.6rem;
+    border-radius: 5px;
+    font-weight: 800;
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 14px rgba(239, 35, 60, 0.4);
+}
+
 .badge-priority-high {
     background-color: rgba(239, 35, 60, 0.18);
     color: #ff4d61;
@@ -558,6 +653,93 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 5px;
     font-weight: 600;
     font-size: 0.74rem;
+}
+
+/* Case Timeline UI */
+.case-timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin-top: 1rem;
+}
+
+.case-timeline::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 11px;
+    width: 2px;
+    background: var(--tg-border-light);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -2rem;
+    top: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--tg-bg-card-solid);
+    border: 2px solid var(--tg-border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.timeline-dot.dot-open {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.timeline-dot.dot-review {
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.timeline-dot.dot-resolved {
+    border-color: #34d399;
+    color: #34d399;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.timeline-dot.dot-report {
+    border-color: var(--tg-red);
+    color: var(--tg-red);
+    box-shadow: 0 0 10px rgba(239, 35, 60, 0.35);
+}
+
+.timeline-card {
+    background: rgba(18, 20, 28, 0.85);
+    border: 1px solid var(--tg-border);
+    border-radius: 9px;
+    padding: 0.85rem 1rem;
+}
+
+/* Activity Feed */
+.activity-feed-item {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.15s ease;
+}
+
+.activity-feed-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.activity-feed-item:last-child {
+    border-bottom: none;
 }
 
 /* Feature Grid in Transaction Details (V1 - V28) */

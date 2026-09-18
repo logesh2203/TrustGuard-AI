@@ -17,6 +17,9 @@
             <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="refreshCasesBtn">
                 <i class="bi bi-arrow-clockwise"></i> Refresh
             </button>
+            <a href="/api/bank/cases/export" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="exportCasesBtn">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
             <a href="{{ url_for('bank.transactions_page') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
                 <i class="bi bi-plus-circle"></i> New Case From Transactions
             </a>
@@ -36,7 +39,7 @@
                 </div>
 
                 <div class="text-muted small">
-                    Total Cases: <strong class="text-dark" id="totalCasesCount">-</strong>
+                    Total Cases: <strong class="text-light" id="totalCasesCount">-</strong>
                 </div>
             </div>
         </div>

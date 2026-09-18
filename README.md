@@ -185,7 +185,11 @@ Password: Bank@123
 
 ### Customer
 
-Create an account using the **Customer Registration** page.
+```text
+Email:    customer@trustguard.ai
+Password: Customer@123
+```
+*(Or create a new account using Customer Registration)*
 
 > **Note:** Demo credentials are intended for local/project demonstration only. Change or remove default credentials before production deployment.
 

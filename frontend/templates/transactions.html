@@ -20,27 +20,37 @@
     <!-- Filters & Search Toolbar -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-3">
-            <div class="row g-3 align-items-center">
+            <div class="row g-2 align-items-center">
                 <!-- Search Input -->
-                <div class="col-md-6 col-lg-5">
+                <div class="col-md-4 col-lg-3">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" class="form-control border-start-0" id="txSearchInput" placeholder="Search by Transaction ID or Amount...">
-                        <button class="btn btn-primary" type="button" id="txSearchBtn">Search</button>
+                        <input type="text" class="form-control border-start-0" id="txSearchInput" placeholder="Tx ID or Row #...">
                     </div>
                 </div>
 
                 <!-- Status Filter Dropdown -->
-                <div class="col-sm-6 col-md-3 col-lg-3">
+                <div class="col-sm-6 col-md-3 col-lg-2">
                     <select class="form-select form-select-sm" id="txStatusFilter">
                         <option value="all">All Statuses</option>
-                        <option value="0">Normal (Class 0)</option>
-                        <option value="1">Fraud (Class 1)</option>
+                        <option value="0">Normal</option>
+                        <option value="1">Fraud-Labeled</option>
+                        <option value="reported">Reported</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="resolved">Resolved</option>
                     </select>
                 </div>
 
+                <!-- Min & Max Amount Inputs -->
+                <div class="col-sm-6 col-md-4 col-lg-4 d-flex gap-1 align-items-center">
+                    <input type="number" class="form-control form-control-sm" id="txMinAmount" placeholder="Min $" step="any">
+                    <span class="text-muted small">-</span>
+                    <input type="number" class="form-control form-control-sm" id="txMaxAmount" placeholder="Max $" step="any">
+                    <button class="btn btn-primary btn-sm px-2" id="txApplyFilterBtn">Filter</button>
+                </div>
+
                 <!-- Per Page Selector & Refresh -->
-                <div class="col-sm-6 col-md-3 col-lg-4 text-sm-end d-flex justify-content-end gap-2 align-items-center">
+                <div class="col-sm-6 col-md-3 col-lg-3 text-sm-end d-flex justify-content-end gap-2 align-items-center">
                     <span class="text-muted small d-none d-lg-inline">Show:</span>
                     <select class="form-select form-select-sm w-auto d-inline-block" id="txPerPage">
                         <option value="10" selected>10 rows</option>
@@ -63,9 +73,9 @@
                     <thead class="table-light">
                         <tr>
                             <th scope="col" class="ps-3">Transaction ID</th>
-                            <th scope="col">Dataset Row Index</th>
-                            <th scope="col">Time Offset (s)</th>
+                            <th scope="col">Dataset Row</th>
                             <th scope="col">Amount ($)</th>
+                            <th scope="col">Risk Badge</th>
                             <th scope="col">Status</th>
                             <th scope="col" class="text-end pe-3">Action</th>
                         </tr>

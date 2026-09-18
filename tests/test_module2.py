@@ -1,19 +1,25 @@
 import unittest
+import os
 import json
 from backend.app import create_app
 from backend.database import db
 from backend.models import User, FraudCase
-from backend.services.seed_service import seed_bank_user
+from backend.config import TestConfig
 
 class TestModule2(unittest.TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        test_db = os.path.join(TestConfig.DATABASE_DIR, 'test_trustguard.db')
+        if os.path.exists(test_db):
+            try:
+                os.remove(test_db)
+            except OSError:
+                pass
+
     def setUp(self):
-        self.app = create_app()
-        self.app.config['TESTING'] = True
-        self.app.config['WTF_CSRF_ENABLED'] = False
+        self.app = create_app(TestConfig)
         self.client = self.app.test_client()
 
-        with self.app.app_context():
-            seed_bank_user()
 
     def test_01_bank_seed_and_auth(self):
         """Test demo bank user seeding and authentication."""

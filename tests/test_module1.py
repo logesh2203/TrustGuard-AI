@@ -5,15 +5,23 @@ from backend.app import create_app
 from backend.database import db
 from backend.models import User, CustomerTransaction
 from backend.services.dataset_service import DatasetService
-from backend.config import Config
+from backend.config import TestConfig
 
 class TestModule1(unittest.TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        test_db = os.path.join(TestConfig.DATABASE_DIR, 'test_trustguard.db')
+        if os.path.exists(test_db):
+            try:
+                os.remove(test_db)
+            except OSError:
+                pass
+
     def setUp(self):
-        # Configure app for testing
-        self.app = create_app()
-        self.app.config['TESTING'] = True
-        self.app.config['WTF_CSRF_ENABLED'] = False
+        # Configure app for testing with isolated test database
+        self.app = create_app(TestConfig)
         self.client = self.app.test_client()
+
 
     def test_01_dataset_service(self):
         """Test dataset loading and column validation."""

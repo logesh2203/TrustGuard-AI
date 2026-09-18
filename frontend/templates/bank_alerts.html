@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Fraud Alert Center - TrustGuard AI{% endblock %}
+
+{% block content %}
+<div class="bank-alerts-wrapper">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Alert Operations</span>
+            </div>
+            <h2 class="fw-bold text-navy mb-1">Fraud Alert Center</h2>
+            <p class="text-muted small mb-0">Centralized triage for customer-reported anomalies, active investigation cases, and high-risk transactions.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="refreshAlertsBtn">
+                <i class="bi bi-arrow-clockwise"></i> Refresh Alerts
+            </button>
+            <a href="{{ url_for('bank.transactions_page') }}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+                <i class="bi bi-receipt"></i> Browse Transactions
+            </a>
+            <a href="{{ url_for('bank.cases_page') }}" class="btn btn-warning btn-sm d-flex align-items-center gap-1 text-dark">
+                <i class="bi bi-folder2-open"></i> All Cases
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Stat Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Total Active Alerts -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Active Alerts</span>
+                        <div class="metric-icon-wrap bg-danger-subtle text-danger">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-danger mb-0 metric-value" id="alertStatTotal">-</h3>
+                    <small class="text-muted">High priority &amp; flagged</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Risk Count -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">High Risk</span>
+                        <div class="metric-icon-wrap bg-danger-subtle text-danger">
+                            <i class="bi bi-shield-slash-fill"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-danger mb-0 metric-value" id="alertStatHigh">-</h3>
+                    <small class="text-muted">Dataset fraud &amp; critical cases</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Reported Count -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Customer Reports</span>
+                        <div class="metric-icon-wrap bg-warning-subtle text-warning">
+                            <i class="bi bi-flag-fill"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-warning mb-0 metric-value" id="alertStatReported">-</h3>
+                    <small class="text-muted">Flagged by account holders</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Under Review Count -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card metric-card shadow-sm border-0 h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Under Investigation</span>
+                        <div class="metric-icon-wrap bg-info-subtle text-info">
+                            <i class="bi bi-search"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-info mb-0 metric-value" id="alertStatReview">-</h3>
+                    <small class="text-muted">Assigned to analysts</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Filters Toolbar -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="btn-group btn-group-sm" role="group" id="alertFilterGroup">
+                    <button type="button" class="btn btn-primary active" data-filter="ALL">All Alerts</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="CUSTOMER">Customer Reports</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="HIGH">High Risk</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="REVIEW">Under Review</button>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="input-group input-group-sm" style="max-width: 260px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="alertSearchInput" placeholder="Filter by Row / Tx ID...">
+                    </div>
+                    <a href="/api/bank/transactions/export?status=1" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" title="Export CSV">
+                        <i class="bi bi-download"></i> Export
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Table Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="alertsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Transaction ID</th>
+                            <th scope="col">Alert Source</th>
+                            <th scope="col">Amount ($)</th>
+                            <th scope="col">Risk Badge</th>
+                            <th scope="col">Investigation Status</th>
+                            <th scope="col">Priority</th>
+                            <th scope="col" class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                Loading fraud alerts...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bank.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof loadBankAlerts === 'function') {
+            loadBankAlerts();
+        }
+    });
+</script>
+{% endblock %}
