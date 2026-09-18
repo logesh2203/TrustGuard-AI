@@ -7,7 +7,7 @@ from backend.services.dataset_service import DatasetService
 
 customer_bp = Blueprint('customer', __name__)
 
-def login_required(f):
+def customer_required(f):
     """Decorator to require customer session authentication."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -15,8 +15,15 @@ def login_required(f):
             if request.path.startswith('/api/'):
                 return jsonify({'error': 'Authentication required. Please log in.'}), 401
             return redirect(url_for('customer.login_page'))
+        if session.get('user_role') != 'CUSTOMER':
+            if request.path.startswith('/api/'):
+                return jsonify({'error': 'Access forbidden. Customer role required.'}), 403
+            return render_template('base.html', error_message="Access Denied: Customer role required to access this portal."), 403
         return f(*args, **kwargs)
     return decorated_function
+
+# Backwards compatibility alias
+login_required = customer_required
 
 
 # ============================================================================
@@ -42,6 +49,8 @@ def index():
 def register_page():
     """Render customer registration page."""
     if 'user_id' in session:
+        if session.get('user_role') == 'BANK':
+            return redirect(url_for('bank.dashboard_page'))
         return redirect(url_for('customer.dashboard_page'))
     return render_template('customer_register.html')
 
@@ -50,12 +59,14 @@ def register_page():
 def login_page():
     """Render customer login page."""
     if 'user_id' in session:
+        if session.get('user_role') == 'BANK':
+            return redirect(url_for('bank.dashboard_page'))
         return redirect(url_for('customer.dashboard_page'))
     return render_template('customer_login.html')
 
 
 @customer_bp.route('/customer/dashboard', methods=['GET'])
-@login_required
+@customer_required
 def dashboard_page():
     """Render customer dashboard page."""
     return render_template('customer_dashboard.html', user_name=session.get('user_name', 'Customer'))
@@ -145,6 +156,9 @@ def api_login():
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
         return jsonify({'error': 'Invalid email or password.'}), 401
+
+    if user.role != 'CUSTOMER':
+        return jsonify({'error': 'Access denied: User account is assigned to the Bank Portal. Please use the Bank Staff login.'}), 403
 
     # Store user in session
     session['user_id'] = user.id

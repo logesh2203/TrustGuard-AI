@@ -10,7 +10,7 @@ from backend.database import db
 from backend.routes.customer import customer_bp
 from backend.routes.transactions import transactions_bp
 from backend.routes.bank import bank_bp
-from backend.services.seed_service import seed_bank_user
+from backend.services.seed_service import seed_bank_user, seed_demo_customer
 
 def create_app(config_class=Config):
     """Application factory for TrustGuard AI."""
@@ -52,6 +52,7 @@ def create_app(config_class=Config):
         import backend.models
         db.create_all()
         seed_bank_user()
+        seed_demo_customer()
 
     return app
 

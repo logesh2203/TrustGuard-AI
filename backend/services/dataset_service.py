@@ -97,12 +97,17 @@ class DatasetService:
             for i in range(1, 29)
         }
 
+        amt = round(float(row['Amount']), 2)
+        cls_lbl = int(row['Class'])
+        risk = 'HIGH' if cls_lbl == 1 else ('MEDIUM' if amt >= 500 else 'LOW')
+
         return {
             'dataset_row_id': int(dataset_row_id),
             'time': float(row['Time']),
-            'amount': round(float(row['Amount']), 2),
-            'class_label': int(row['Class']),
-            'status': 'Normal' if int(row['Class']) == 0 else 'Fraud-Labeled',
+            'amount': amt,
+            'class_label': cls_lbl,
+            'status': 'Normal' if cls_lbl == 0 else 'Fraud-Labeled',
+            'risk_level': risk,
             'features': v_features
         }
 
@@ -130,10 +135,13 @@ class DatasetService:
         page: int = 1,
         per_page: int = 20,
         status: str = 'all',
-        search_id: Optional[str] = None
+        search_id: Optional[str] = None,
+        min_amount: Optional[float] = None,
+        max_amount: Optional[float] = None,
+        risk_level: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Retrieve paginated slice of dataset transactions with optional search and status filter.
+        Retrieve paginated slice of dataset transactions with advanced search, status, amount range, and risk filters.
         """
         df = cls.load_dataset()
         filtered_df = df
@@ -144,7 +152,23 @@ class DatasetService:
         elif status in ('1', 'fraud', 'fraud-labeled'):
             filtered_df = filtered_df[filtered_df['Class'] == 1]
 
-        # Apply search by row index / ID
+        # Apply amount range filters
+        if min_amount is not None:
+            filtered_df = filtered_df[filtered_df['Amount'] >= min_amount]
+        if max_amount is not None:
+            filtered_df = filtered_df[filtered_df['Amount'] <= max_amount]
+
+        # Apply risk filter (Class 1 = HIGH, Class 0 + Amount >= 500 = MEDIUM, Class 0 + Amount < 500 = LOW)
+        if risk_level:
+            rl = risk_level.strip().upper()
+            if rl == 'HIGH':
+                filtered_df = filtered_df[filtered_df['Class'] == 1]
+            elif rl == 'MEDIUM':
+                filtered_df = filtered_df[(filtered_df['Class'] == 0) & (filtered_df['Amount'] >= 500)]
+            elif rl == 'LOW':
+                filtered_df = filtered_df[(filtered_df['Class'] == 0) & (filtered_df['Amount'] < 500)]
+
+        # Apply search by row index / ID or exact amount
         if search_id is not None and str(search_id).strip():
             s = str(search_id).strip()
             if s.isdigit():
@@ -170,13 +194,17 @@ class DatasetService:
 
         records = []
         for row_index, row in sliced_df.iterrows():
+            amt = round(float(row['Amount']), 2)
+            cls_lbl = int(row['Class'])
+            risk = 'HIGH' if cls_lbl == 1 else ('MEDIUM' if amt >= 500 else 'LOW')
             records.append({
                 'id': int(row_index),
                 'dataset_row_id': int(row_index),
-                'amount': round(float(row['Amount']), 2),
+                'amount': amt,
                 'transaction_time': float(row['Time']),
-                'class_label': int(row['Class']),
-                'status': 'Normal' if int(row['Class']) == 0 else 'Fraud-Labeled'
+                'class_label': cls_lbl,
+                'risk_level': risk,
+                'status': 'Normal' if cls_lbl == 0 else 'Fraud-Labeled'
             })
 
         return {
@@ -191,16 +219,19 @@ class DatasetService:
     def get_recent_dataset_transactions(cls, limit: int = 5) -> List[Dict[str, Any]]:
         """Retrieve recent transactions from dataset sample."""
         df = cls.load_dataset()
-        # Take a mixed sample (normal + fraud) from the head to represent recent activity
         records = []
         for row_index, row in df.head(limit).iterrows():
+            amt = round(float(row['Amount']), 2)
+            cls_lbl = int(row['Class'])
+            risk = 'HIGH' if cls_lbl == 1 else ('MEDIUM' if amt >= 500 else 'LOW')
             records.append({
                 'id': int(row_index),
                 'dataset_row_id': int(row_index),
-                'amount': round(float(row['Amount']), 2),
+                'amount': amt,
                 'transaction_time': float(row['Time']),
-                'class_label': int(row['Class']),
-                'status': 'Normal' if int(row['Class']) == 0 else 'Fraud-Labeled'
+                'class_label': cls_lbl,
+                'risk_level': risk,
+                'status': 'Normal' if cls_lbl == 0 else 'Fraud-Labeled'
             })
         return records
 
